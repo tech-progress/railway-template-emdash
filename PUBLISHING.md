@@ -1,6 +1,6 @@
 # Publishing
 
-The current template release is `v1.0.0`. `EmDash App` builds `tech-progress/railway-template-emdash` from `release-v1` with root directory `/`; the `EmDash` gateway runs the pinned Caddy image.
+The current template release is `v1.0.1`. `EmDash App` builds `tech-progress/railway-template-emdash` from `release-v1` with root directory `/`; the `EmDash` gateway runs the pinned Caddy image.
 
 1. `bun install --frozen-lockfile` and `./scripts/verify.sh`.
 2. `./scripts/local-check.sh` (clean build, both smoke phases around a restart, log check, teardown).

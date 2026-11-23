@@ -9,7 +9,10 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 engine="$(command -v docker || command -v podman)" || { echo "docker or podman required" >&2; exit 1; }
 pin() { grep -A1 "^export const $1 =\$" "${root}/.railway/railway.ts" | tail -n 1 | sed -E 's/^ *"(.*)";$/\1/'; }
-caddy="$(pin CADDY_IMAGE)"; node="$(pin APP_SEED_IMAGE)"
+# Railway takes Docker Hub short names; Podman without unqualified-search
+# registries does not, so the test qualifies them.
+qualify() { case "$1" in */*) printf '%s' "$1" ;; *) printf 'docker.io/library/%s' "$1" ;; esac; }
+caddy="$(qualify "$(pin CADDY_IMAGE)")"; node="$(qualify "$(pin APP_SEED_IMAGE)")"
 failures=0
 bad() { echo "FAIL: $*" >&2; failures=$((failures + 1)); }
 key="emdash_enc_v1_$(printf 'A%.0s' $(seq 1 43))"
@@ -25,6 +28,9 @@ app_case() { # expected-exit label env...
 site=EMDASH_SITE_URL=https://blog.example.com
 app_case 64 "no site URL" "EMDASH_ENCRYPTION_KEY=${key}" PORT=4321
 app_case 64 "empty host" EMDASH_SITE_URL=https:// "EMDASH_ENCRYPTION_KEY=${key}" PORT=4321
+app_case 64 "empty host with port" EMDASH_SITE_URL=https://: "EMDASH_ENCRYPTION_KEY=${key}" PORT=4321
+app_case 64 "port without host" EMDASH_SITE_URL=https://:443 "EMDASH_ENCRYPTION_KEY=${key}" PORT=4321
+app_case 64 "host with empty port" EMDASH_SITE_URL=https://blog.example.com: "EMDASH_ENCRYPTION_KEY=${key}" PORT=4321
 app_case 64 "site URL with path" EMDASH_SITE_URL=https://blog.example.com/x "EMDASH_ENCRYPTION_KEY=${key}" PORT=4321
 app_case 64 "plain http public URL" EMDASH_SITE_URL=http://blog.example.com "EMDASH_ENCRYPTION_KEY=${key}" PORT=4321
 app_case 64 "no key" "${site}" PORT=4321

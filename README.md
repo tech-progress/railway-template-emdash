@@ -1,6 +1,6 @@
 # EmDash CMS on Railway
 
-The current template release is `v1.0.0`. It runs [EmDash](https://github.com/emdash-cms/emdash) `1.6.0` (its blog template on [Astro](https://astro.build) 7 with the Node adapter) behind a [Caddy](https://caddyserver.com) `2.11.9` gateway. Node and Caddy images are pinned by digest, and the site's npm dependencies are pinned by `site/package-lock.json`.
+The current template release is `v1.0.1`. It runs [EmDash](https://github.com/emdash-cms/emdash) `1.6.0` (its blog template on [Astro](https://astro.build) 7 with the Node adapter) behind a [Caddy](https://caddyserver.com) `2.11.9` gateway. Node and Caddy images are pinned by digest, and the site's npm dependencies are pinned by `site/package-lock.json`.
 
 EmDash is a TypeScript CMS built on Astro: content types, a rich-text editor, media library, menus, taxonomies, scheduled publishing, full-text search, comments, plugins, a REST API and an MCP server, with passkey sign-in. Most EmDash deployment guides target Cloudflare Workers; this template runs the same CMS as a long-running Node server on Railway with SQLite and local media storage.
 

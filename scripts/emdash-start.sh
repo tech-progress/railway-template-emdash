@@ -17,7 +17,7 @@ case "${site_url}" in
 esac
 host_part="${site_url#*://}"
 case "${host_part}" in
-  '' | */* | *[!A-Za-z0-9.:-]*) fail "EMDASH_SITE_URL must be an origin with a host and no path (got '${site_url}')" ;;
+  '' | */* | *[!A-Za-z0-9.:-]* | [!A-Za-z0-9]* | *:) fail "EMDASH_SITE_URL must be an origin with a host and no path (got '${site_url}')" ;;
 esac
 
 key="${EMDASH_ENCRYPTION_KEY:-}"
