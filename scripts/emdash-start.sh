@@ -30,6 +30,10 @@ for entry in ${key}; do
   [ "${body}" != "${entry}" ] || fail "every EMDASH_ENCRYPTION_KEY entry must start with emdash_enc_v1_"
   [ "${#body}" -eq 43 ] || fail "every EMDASH_ENCRYPTION_KEY entry needs 43 characters after emdash_enc_v1_"
   case "${body}" in *[!A-Za-z0-9_-]*) fail "EMDASH_ENCRYPTION_KEY may contain only base64url characters" ;; esac
+  # 43 characters carry 258 bits for 32 bytes, so the last one must leave its
+  # two low bits zero, or EmDash rejects the key as non-canonical and silently
+  # disables secret plugin settings.
+  case "${body}" in *[AEIMQUYcgkosw048]) ;; *) fail "EMDASH_ENCRYPTION_KEY is not canonical base64url of 32 bytes; generate one with npx emdash secrets generate" ;; esac
 done
 IFS="${old_ifs}"
 

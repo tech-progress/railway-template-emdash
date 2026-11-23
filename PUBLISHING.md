@@ -18,5 +18,5 @@ railway templates publish <TEMPLATE_ID> \
   --json
 ```
 
-8. `./scripts/audit-template.sh <TEMPLATE_ID> PUBLISHED`, then from the repository root `scripts/sync-template-marketplace.sh emdash-cms` and `scripts/audit-template-marketplace.sh emdash-cms`.
+8. `./scripts/audit-template.sh <TEMPLATE_ID> PUBLISHED`. Add the template to the root `railway-template-metadata.json` (ID and code from the publish output, directory `emdash-cms`, distribution repository `tech-progress/railway-template-emdash`, category `CMS`, the description above, icon `https://github.com/emdash-cms.png`, and the EmDash, Astro and Caddy origins), then from the repository root run `scripts/sync-template-marketplace.sh emdash-cms` and `scripts/audit-template-marketplace.sh emdash-cms`; both must pass.
 9. Stop and delete the source and verification projects, prove zero running instances, and tag `emdash-cms-v<version>` in the monorepo.

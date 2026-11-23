@@ -31,6 +31,11 @@ app_case 64 "no key" "${site}" PORT=4321
 app_case 64 "short key" "${site}" EMDASH_ENCRYPTION_KEY=emdash_enc_v1_AAAA PORT=4321
 app_case 64 "wrong prefix" "${site}" "EMDASH_ENCRYPTION_KEY=x${key}" PORT=4321
 app_case 64 "bad second key" "${site}" "EMDASH_ENCRYPTION_KEY=${key},${key}+" PORT=4321
+app_case 64 "non-canonical key" "${site}" "EMDASH_ENCRYPTION_KEY=emdash_enc_v1_$(printf 'A%.0s' $(seq 1 42))B" PORT=4321
+app_case 64 "non-canonical second key" "${site}" "EMDASH_ENCRYPTION_KEY=${key},emdash_enc_v1_$(printf 'A%.0s' $(seq 1 42))_" PORT=4321
+# Valid settings pass every check and stop only at the missing /app of the
+# bare Node image (exit 2), never at validation (64).
+app_case 2 "valid canonical keys pass" "${site}" "EMDASH_ENCRYPTION_KEY=emdash_enc_v1_$(printf 'A%.0s' $(seq 1 42))w,${key}" PORT=4321
 app_case 64 "bad port" "${site}" "EMDASH_ENCRYPTION_KEY=${key}" PORT=abc
 status=0
 "${engine}" run --rm --memory 128m --network none -v "${root}/scripts/emdash-start.sh:/s.sh:ro,Z" -e "${site}" -e "EMDASH_ENCRYPTION_KEY=${key}" -e PORT=4321 \
@@ -70,6 +75,9 @@ for mode in admin setup; do
   [[ "$(code "http://127.0.0.1:${port}/")" == 502 ]] || bad "${mode}: the public site is gated"
   [[ "$(code "http://127.0.0.1:${port}/_emdash/api/content/posts")" == 502 ]] || bad "${mode}: the token API is gated"
   [[ "$(code "http://127.0.0.1:${port}/_emdash/api/x/../setup")" == 400 ]] || bad "${mode}: a dot segment is not refused"
+  [[ "$(code "http://127.0.0.1:${port}/%255femdash/api/setup")" == 400 ]] || bad "${mode}: a double-encoded path is not refused"
+  [[ "$(code "http://127.0.0.1:${port}/_emdash/api/%2573etup")" == 400 ]] || bad "${mode}: a double-encoded letter is not refused"
+  [[ "$(code "http://127.0.0.1:${port}/search?q=100%25")" == 502 ]] || bad "${mode}: an encoded percent in the query is refused"
   admin="$(code "http://127.0.0.1:${port}/_emdash/admin")"
   if [[ "${mode}" == admin ]]; then [[ "${admin}" == 401 ]] || bad "admin: the admin panel is not gated"
   else [[ "${admin}" == 502 ]] || bad "setup: the admin panel is gated"; fi

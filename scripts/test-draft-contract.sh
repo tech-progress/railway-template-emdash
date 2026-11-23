@@ -64,6 +64,9 @@ mutations=(
   "$(svc "EmDash App").variables.EMDASH_ENCRYPTION_KEY.defaultValue = \"emdash_enc_v1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\""
   "$(svc "EmDash App").variables.EMDASH_SITE_URL.isOptional = true"
   "$(svc "EmDash App").variables.EMDASH_DATA_DIR = {\"defaultValue\":\"/tmp\",\"isOptional\":false,\"description\":\"\"}"
+  "$(svc EmDash).variables.GATEWAY_PASSWORD.value = \"KnownPassword1234567890abcdefgh\""
+  "$(svc "EmDash App").variables.EMDASH_ENCRYPTION_KEY.generator = \"none\""
+  "$(svc EmDash).variables.GATEWAY_USERNAME.preserveExisting = true"
   ".data.template.serializedConfig.buckets = {\"b\":{\"name\":\"bucket\"}}"
 )
 

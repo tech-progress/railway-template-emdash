@@ -292,6 +292,14 @@ async function gatewayChecks() {
     "/_emdash/api/setup/status?",
     "/_emdash/api/setup/status#",
     "http://evil.example/_emdash/api/setup/status",
+    // EmDash's server decodes the path again after the gateway's decode.
+    "/%255femdash/api/setup/status",
+    "/%255Femdash/admin",
+    "/_emdash/api/%2573etup/status",
+    "/_emdash/%2561dmin",
+    "/_emdash/api/setup%252fstatus",
+    "/_emdash/api/x/%252e%252e/setup/status",
+    "/%25255femdash/api/setup/status",
   ];
   for (const target of variants) {
     const r = await rawStatus(target);

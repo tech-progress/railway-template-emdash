@@ -45,6 +45,7 @@ while IFS= read -r name; do
   check "${name} variable keys" eq "$(jq -c '(.variables//{})|keys|sort' <<<"${actual}")" "$(jq -c --arg n "${name}" '.[$n]|keys|sort' "${root}/template-defaults.json")"
   while IFS= read -r key; do
     check "${name} ${key} default" eq "$(jq -c --arg k "${key}" '.variables[$k].defaultValue' <<<"${actual}")" "$(jq -c --arg n "${name}" --arg k "${key}" '.[$n][$k]' "${root}/template-defaults.json")"
+    check "${name} ${key} fields" eq "$(jq -c --arg k "${key}" '.variables[$k]|keys' <<<"${actual}")" '["defaultValue","description","isOptional"]'
     check "${name} ${key} required" eq "$(jq -c --arg k "${key}" '.variables[$k].isOptional' <<<"${actual}")" false
     check "${name} ${key} description" eq "$(jq -c --arg k "${key}" '.variables[$k].description' <<<"${actual}")" "$(jq -c --arg n "${name}" --arg k "${key}" '.[$n][$k]' "${root}/template-descriptions.json")"
   done < <(jq -r --arg n "${name}" '.[$n]|keys[]' "${root}/template-defaults.json")

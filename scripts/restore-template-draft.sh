@@ -53,9 +53,10 @@ jq -nc --slurpfile draftfile "${work}/draft.json" --slurpfile graphfile "${work}
             numReplicas: 1,
             restartPolicyType: "ON_FAILURE",
             restartPolicyMaxRetries: 10}
-        | (.services[$s.key].variables // {}) as $existing
+        # Build each variable from scratch so no stored field (a literal value,
+        # generator or encrypted value) survives beside the checked-in default.
         | .services[$s.key].variables = reduce (($defaults[0][$s.value.name] // {})|to_entries[]) as $v ({};
-            .[$v.key] = (($existing[$v.key] // {}) + {defaultValue:$v.value, isOptional:false, description:($descriptions[0][$s.value.name][$v.key] // "")}))
+            .[$v.key] = {defaultValue:$v.value, isOptional:false, description:($descriptions[0][$s.value.name][$v.key] // "")})
         | if $volumes[0][$s.value.name] != null then
             if ((.services[$s.key].volumeMounts // {})|length) != 1 then error("Expected exactly one draft volume mount for "+$s.value.name) else
               reduce (.services[$s.key].volumeMounts|keys[]) as $m (.;

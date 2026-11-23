@@ -59,12 +59,14 @@ cat >"${config}" <<EOF
 	}
 
 	# Paths that Caddy and the Node server could resolve differently: an
-	# encoded dot, slash, backslash or NUL in the path, a raw backslash, an
-	# empty segment, or a dot segment. Browsers never send these for links
-	# the site generates. The raw request target is checked before any
-	# decoding or dot-segment removal.
+	# encoded percent sign (the server decodes the path a second time after
+	# Caddy's single decode, so /%255femdash reaches /_emdash), an encoded
+	# dot, slash, backslash or NUL, a raw backslash, an empty segment, or a
+	# dot segment. Browsers never send these for links the site generates.
+	# The raw request target is checked before any decoding or dot-segment
+	# removal.
 	@ambiguous {
-		vars_regexp raw {http.request.uri} (?i)^[^?#]*(%2e|%2f|%5c|%00|\\\\|//|/\.\.?(/|\?|#|$))
+		vars_regexp raw {http.request.uri} (?i)^[^?#]*(%25|%2e|%2f|%5c|%00|\\\\|//|/\.\.?(/|\?|#|$))
 	}
 	@notorigin not vars_regexp origin {http.request.uri} ^/
 	@gated path ${gated_paths}
