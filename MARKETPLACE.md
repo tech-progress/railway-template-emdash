@@ -8,7 +8,7 @@ The `EmDash App` service builds upstream's blog template on Astro's Node adapter
 
 The `EmDash` service is a Caddy gateway and the only public service. A fresh EmDash lets the first visitor create the admin account, so the gateway asks for a generated password (`GATEWAY_USERNAME` and `GATEWAY_PASSWORD` on the `EmDash` service) before the admin panel and setup. The public site, media, search, RSS and token-authenticated API calls stay open.
 
-After deploying: open `https://<your domain>/_emdash/admin`, enter the gateway credentials, then run the setup wizard and create your passkey.
+After deploying: open the `/_emdash/admin` path on the `EmDash` service's domain, enter the gateway credentials, then run the setup wizard and create your passkey.
 
 ## Why Deploy EmDash CMS on Railway
 
