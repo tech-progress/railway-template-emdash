@@ -1,0 +1,11 @@
+**/node_modules
+site/dist
+site/.astro
+site/.emdash
+.git
+.env
+*.md
+!site/README.md
+.railway
+tests
+template-*.json

@@ -1,0 +1,17 @@
+{
+  "EmDash": {
+    "PORT": "Gateway listener; Railway's public domain and health check use it.",
+    "GATEWAY_USERNAME": "Username for the browser password prompt in front of the EmDash admin panel and first-run setup.",
+    "GATEWAY_PASSWORD": "Generated password for the admin panel's browser prompt. Letters and digits, 16 or more. Share it only with people who edit the site.",
+    "GATEWAY_ADMIN_GATE": "admin: the prompt guards the admin panel and setup. setup: only the setup API, which EmDash closes itself once setup is done; editors then sign in with passkeys alone.",
+    "EMDASH_APP_ADDRESS": "Private address of the EmDash App service.",
+    "GATEWAY_TRUSTED_PROXIES": "Railway's edge range; the visitor address it reports is passed to EmDash for rate limits."
+  },
+  "EmDash App": {
+    "PORT": "Private Node listener the gateway forwards to; Railway's health check calls /_emdash/api/health on it.",
+    "HOST": "Listen on IPv6 and IPv4 so Railway's private network reaches the site.",
+    "EMDASH_SITE_URL": "Public origin of the site. Passkeys, links and setup use it. Change it when you add a custom domain to the EmDash service, then redeploy.",
+    "EMDASH_ENCRYPTION_KEY": "Generated key that encrypts secret plugin settings. Keep a copy outside Railway; a database restored without it cannot read those settings.",
+    "EMDASH_TRUSTED_PROXY_HEADERS": "Header the gateway sets to the visitor's address, used by EmDash's rate limits."
+  }
+}

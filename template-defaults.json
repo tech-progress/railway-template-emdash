@@ -1,0 +1,17 @@
+{
+  "EmDash": {
+    "PORT": "8080",
+    "GATEWAY_USERNAME": "admin",
+    "GATEWAY_PASSWORD": "${{secret(32, \"ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789\")}}",
+    "GATEWAY_ADMIN_GATE": "admin",
+    "EMDASH_APP_ADDRESS": "${{EmDash App.RAILWAY_PRIVATE_DOMAIN}}:4321",
+    "GATEWAY_TRUSTED_PROXIES": "100.64.0.0/10"
+  },
+  "EmDash App": {
+    "PORT": "4321",
+    "HOST": "::",
+    "EMDASH_SITE_URL": "https://${{EmDash.RAILWAY_PUBLIC_DOMAIN}}",
+    "EMDASH_ENCRYPTION_KEY": "emdash_enc_v1_${{secret(42, \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\")}}A",
+    "EMDASH_TRUSTED_PROXY_HEADERS": "x-real-ip"
+  }
+}

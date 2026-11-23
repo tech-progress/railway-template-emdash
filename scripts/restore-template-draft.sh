@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# Restore the generated Railway draft to the checked-in contract: sources
+# (the EmDash App repository instead of its seed image), start commands, health
+# checks, variable defaults with generated secrets, volumes, one replica per
+# service, and the gateway-only public domain.
+set -euo pipefail
+
+template_id="${1:?Usage: ./scripts/restore-template-draft.sh TEMPLATE_ID WORKSPACE_ID}"
+workspace_id="${2:?Usage: ./scripts/restore-template-draft.sh TEMPLATE_ID WORKSPACE_ID}"
+template_name="EmDash CMS"
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+token="$(jq -r '.user.accessToken' "${RAILWAY_CONFIG_PATH:-${HOME}/.railway/config.json}")"
+# Compile with a scrubbed environment so no EMDASH_IAC_* source-project
+# credential from the applying shell reaches the graph, and hand JSON to jq
+# through files, not arguments.
+work="$(mktemp -d)"
+trap 'rm -rf "${work:?}"' EXIT
+(cd "${root}" && env -i PATH="${PATH}" HOME="${HOME}" ./node_modules/.bin/railway-iac-ts .railway/railway.ts </dev/null) > "${work}/graph.json"
+# The bearer token reaches curl through a config file descriptor (printf is a
+# shell builtin), never through process arguments visible on a shared machine.
+internal_api() {
+  curl --compressed --fail --silent --show-error --config <(printf 'header = "Authorization: Bearer %s"\n' "${token}") \
+    -H 'Content-Type: application/json' --data-binary @- https://backboard.railway.com/graphql/internal <<<"$1"
+}
+railway api 'query Draft($id:String!){template(id:$id){serializedConfig}}' --var "id=${template_id}" --compact > "${work}/draft.json"
+
+jq -nc --slurpfile draftfile "${work}/draft.json" --slurpfile graphfile "${work}/graph.json" \
+  --slurpfile defaults "${root}/template-defaults.json" --slurpfile descriptions "${root}/template-descriptions.json" \
+  --slurpfile volumes "${root}/template-volumes.json" --slurpfile networking "${root}/template-networking.json" \
+  --arg id "${template_id}" --arg workspaceId "${workspace_id}" --arg name "${template_name}" '
+  $draftfile[0] as $draft | $graphfile[0] as $graph
+  | ($graph.graph.resources|map(select(.type=="service"))|map({key:.name,value:.})|from_entries) as $desired
+  | $draft.data.template.serializedConfig as $config
+  | if (($config.services|map(.name)|sort)!=($desired|keys|sort)) then error("Draft service set mismatch") else
+      reduce ($config.services|to_entries[]) as $s ($config;
+        $desired[$s.value.name] as $d
+        # Keep only the fields this contract manages (drops configFile and any
+        # other generated or unknown service setting), then set source and build
+        # wholesale: no commit pin, extra build option or seed image survives.
+        | .services[$s.key] |= with_entries(select(.key as $k | ["deploy","icon","name","networking","source","variables","volumeMounts"]|index($k)))
+        | if $d.source.image != null then
+            .services[$s.key].source = {image:$d.source.image}
+          else
+            .services[$s.key].source = {repo:$d.source.repo, branch:$d.source.branch, rootDirectory:$d.source.rootDirectory}
+            | .services[$s.key].build = $d.build
+          end
+        # Replace deploy wholesale so no generated field (for example a
+        # preDeployCommand) survives beside the checked-in contract.
+        | .services[$s.key].deploy = {
+            startCommand: ($d.deploy.startCommand // null),
+            healthcheckPath: ($d.deploy.healthcheckPath // null),
+            healthcheckTimeout: ($d.deploy.healthcheckTimeout // null),
+            numReplicas: 1,
+            restartPolicyType: "ON_FAILURE",
+            restartPolicyMaxRetries: 10}
+        | (.services[$s.key].variables // {}) as $existing
+        | .services[$s.key].variables = reduce (($defaults[0][$s.value.name] // {})|to_entries[]) as $v ({};
+            .[$v.key] = (($existing[$v.key] // {}) + {defaultValue:$v.value, isOptional:false, description:($descriptions[0][$s.value.name][$v.key] // "")}))
+        | if $volumes[0][$s.value.name] != null then
+            if ((.services[$s.key].volumeMounts // {})|length) != 1 then error("Expected exactly one draft volume mount for "+$s.value.name) else
+              reduce (.services[$s.key].volumeMounts|keys[]) as $m (.;
+                .services[$s.key].volumeMounts[$m].mountPath = $volumes[0][$s.value.name].mountPath
+                | .services[$s.key].volumeMounts[$m].sizeMB = $volumes[0][$s.value.name].sizeMB)
+            end
+          else .services[$s.key].volumeMounts = {} end
+        # Replace networking wholesale so no custom domain, TCP proxy or other
+        # ingress survives from the generated draft.
+        | .services[$s.key].networking = {
+            serviceDomains: (if $networking[0][$s.value.name].publicPort != null
+              then {"<hasDomain>":{port:$networking[0][$s.value.name].publicPort}} else {} end),
+            tcpProxies: {}})
+      | .buckets = {}
+      | {id:$id, input:{name:$name, workspaceId:$workspaceId, serializedConfig:.}}
+    end' > "${work}/variables.json"
+
+request="$(jq -nc --slurpfile variables "${work}/variables.json" --arg query 'mutation Update($id:String!,$input:TemplateUpsertConfigInput!){templateUpsertConfig(id:$id,input:$input){id code}}' '{query:$query,variables:$variables[0]}')"
+response="$(internal_api "${request}")"
+jq -e '.data.templateUpsertConfig.id!=null and ((.errors//[])|length==0)' <<<"${response}" >/dev/null || { jq -c '.errors' <<<"${response}" >&2; exit 1; }
+
+settings="$(jq -nc --arg id "${template_id}" --arg workspaceId "${workspace_id}" --arg name "${template_name}" --arg query 'mutation Settings($id:String!,$input:TemplateUpsertSettingsInput!){templateUpsertSettings(id:$id,input:$input){id name}}' '{query:$query,variables:{id:$id,input:{name:$name,workspaceId:$workspaceId}}}')"
+response="$(internal_api "${settings}")"
+jq -e --arg name "${template_name}" '.data.templateUpsertSettings.name==$name and ((.errors//[])|length==0)' <<<"${response}" >/dev/null || { jq -c '.errors' <<<"${response}" >&2; exit 1; }
+echo "Restored EmDash draft ${template_id}."

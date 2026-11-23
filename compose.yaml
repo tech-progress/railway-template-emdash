@@ -1,0 +1,51 @@
+# Local equivalent of the Railway topology: the EmDash App builds the root
+# Dockerfile and keeps its database and media on one volume at /data; the
+# Caddy gateway is the only published port. Pins match .railway/railway.ts
+# (scripts/verify.sh checks them).
+#
+#   GATEWAY_PASSWORD=<16+ letters/digits> \
+#   EMDASH_ENCRYPTION_KEY=emdash_enc_v1_<43 base64url> docker compose up -d --build
+#   open http://localhost:${EMDASH_LOCAL_PORT:-18080}/_emdash/admin
+name: emdash-cms
+
+services:
+  emdash-app:
+    build:
+      context: .
+      args:
+        EMDASH_SITE_URL: http://localhost:${EMDASH_LOCAL_PORT:-18080}
+    image: localhost/emdash-railway:local
+    environment:
+      PORT: "4321"
+      HOST: "::"
+      EMDASH_SITE_URL: http://localhost:${EMDASH_LOCAL_PORT:-18080}
+      EMDASH_ENCRYPTION_KEY: ${EMDASH_ENCRYPTION_KEY:?set EMDASH_ENCRYPTION_KEY}
+      EMDASH_TRUSTED_PROXY_HEADERS: x-real-ip
+    volumes:
+      - emdash-data:/data
+    mem_limit: 768m
+    pids_limit: 256
+    restart: unless-stopped
+
+  emdash:
+    image: caddy:2.11.9-alpine@sha256:003a97808e781aa9f7e75cc2f43d34d461099031faf5e20faefb9f61126836f0
+    command: ["/bin/sh", "/srv/gateway-start.sh"]
+    environment:
+      PORT: "8080"
+      GATEWAY_USERNAME: admin
+      GATEWAY_PASSWORD: ${GATEWAY_PASSWORD:?set GATEWAY_PASSWORD}
+      GATEWAY_ADMIN_GATE: ${GATEWAY_ADMIN_GATE:-admin}
+      EMDASH_APP_ADDRESS: emdash-app:4321
+      GATEWAY_TRUSTED_PROXIES: 100.64.0.0/10
+    volumes:
+      - ./scripts/gateway-start.sh:/srv/gateway-start.sh:ro,Z
+    ports:
+      - 127.0.0.1:${EMDASH_LOCAL_PORT:-18080}:8080
+    depends_on:
+      - emdash-app
+    mem_limit: 128m
+    pids_limit: 128
+    restart: unless-stopped
+
+volumes:
+  emdash-data:

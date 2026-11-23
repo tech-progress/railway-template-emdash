@@ -1,0 +1,1 @@
+{"name":"railway-emdash-cms-template","private":true,"type":"module","scripts":{"verify":"./scripts/verify.sh"},"devDependencies":{"railway":"3.6.0"}}

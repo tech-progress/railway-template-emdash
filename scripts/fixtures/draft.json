@@ -1,0 +1,132 @@
+{
+  "data": {
+    "template": {
+      "name": "EmDash CMS",
+      "serializedConfig": {
+        "buckets": {},
+        "services": {
+          "8c3763b8-2e77-4fbe-938a-e2ee6eaf56f3": {
+            "deploy": {
+              "healthcheckPath": "/__gateway/health",
+              "healthcheckTimeout": 120,
+              "numReplicas": 1,
+              "restartPolicyMaxRetries": 10,
+              "restartPolicyType": "ON_FAILURE",
+              "startCommand": "/bin/sh -ec \"printf %s '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' | base64 -d | gzip -dc >/tmp/gateway-start.sh; exec /bin/sh /tmp/gateway-start.sh\""
+            },
+            "icon": null,
+            "name": "EmDash",
+            "networking": {
+              "serviceDomains": {
+                "<hasDomain>": {
+                  "port": 8080
+                }
+              },
+              "tcpProxies": {}
+            },
+            "source": {
+              "image": "caddy:2.11.9-alpine@sha256:003a97808e781aa9f7e75cc2f43d34d461099031faf5e20faefb9f61126836f0"
+            },
+            "variables": {
+              "EMDASH_APP_ADDRESS": {
+                "defaultValue": "${{EmDash App.RAILWAY_PRIVATE_DOMAIN}}:4321",
+                "description": "Private address of the EmDash App service.",
+                "isOptional": false
+              },
+              "GATEWAY_ADMIN_GATE": {
+                "defaultValue": "admin",
+                "description": "admin: the prompt guards the admin panel and setup. setup: only the setup API, which EmDash closes itself once setup is done; editors then sign in with passkeys alone.",
+                "isOptional": false
+              },
+              "GATEWAY_PASSWORD": {
+                "defaultValue": "${{secret(32, \"ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789\")}}",
+                "description": "Generated password for the admin panel's browser prompt. Letters and digits, 16 or more. Share it only with people who edit the site.",
+                "isOptional": false
+              },
+              "GATEWAY_TRUSTED_PROXIES": {
+                "defaultValue": "100.64.0.0/10",
+                "description": "Railway's edge range; the visitor address it reports is passed to EmDash for rate limits.",
+                "isOptional": false
+              },
+              "GATEWAY_USERNAME": {
+                "defaultValue": "admin",
+                "description": "Username for the browser password prompt in front of the EmDash admin panel and first-run setup.",
+                "isOptional": false
+              },
+              "PORT": {
+                "defaultValue": "8080",
+                "description": "Gateway listener; Railway's public domain and health check use it.",
+                "isOptional": false
+              }
+            },
+            "volumeMounts": {}
+          },
+          "ee481925-d936-4ace-bf6b-02bbc009432b": {
+            "build": {
+              "builder": "DOCKERFILE",
+              "dockerfilePath": "Dockerfile",
+              "watchPatterns": [
+                "/Dockerfile",
+                "/site/**",
+                "/scripts/emdash-start.sh"
+              ]
+            },
+            "deploy": {
+              "healthcheckPath": "/_emdash/api/health",
+              "healthcheckTimeout": 300,
+              "numReplicas": 1,
+              "restartPolicyMaxRetries": 10,
+              "restartPolicyType": "ON_FAILURE",
+              "startCommand": null
+            },
+            "icon": null,
+            "name": "EmDash App",
+            "networking": {
+              "serviceDomains": {},
+              "tcpProxies": {}
+            },
+            "source": {
+              "branch": "release-v1",
+              "repo": "tech-progress/railway-template-emdash",
+              "rootDirectory": "/"
+            },
+            "variables": {
+              "EMDASH_ENCRYPTION_KEY": {
+                "defaultValue": "emdash_enc_v1_${{secret(42, \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\")}}A",
+                "description": "Generated key that encrypts secret plugin settings. Keep a copy outside Railway; a database restored without it cannot read those settings.",
+                "isOptional": false
+              },
+              "EMDASH_SITE_URL": {
+                "defaultValue": "https://${{EmDash.RAILWAY_PUBLIC_DOMAIN}}",
+                "description": "Public origin of the site. Passkeys, links and setup use it. Change it when you add a custom domain to the EmDash service, then redeploy.",
+                "isOptional": false
+              },
+              "EMDASH_TRUSTED_PROXY_HEADERS": {
+                "defaultValue": "x-real-ip",
+                "description": "Header the gateway sets to the visitor's address, used by EmDash's rate limits.",
+                "isOptional": false
+              },
+              "HOST": {
+                "defaultValue": "::",
+                "description": "Listen on IPv6 and IPv4 so Railway's private network reaches the site.",
+                "isOptional": false
+              },
+              "PORT": {
+                "defaultValue": "4321",
+                "description": "Private Node listener the gateway forwards to; Railway's health check calls /_emdash/api/health on it.",
+                "isOptional": false
+              }
+            },
+            "volumeMounts": {
+              "ee481925-d936-4ace-bf6b-02bbc009432b": {
+                "mountPath": "/data",
+                "sizeMB": 5000
+              }
+            }
+          }
+        }
+      },
+      "status": "UNPUBLISHED"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "emdash-railway-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "emdash": {
+    "label": "Blog",
+    "seed": "seed/seed.json"
+  },
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "start": "node ./dist/server/entry.mjs",
+    "typecheck": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/node": "11.1.14",
+    "@astrojs/react": "7.1.9",
+    "astro": "7.4.13",
+    "emdash": "1.6.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "lightningcss": "1.33.0"
+  }
+}
